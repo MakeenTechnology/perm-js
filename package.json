@@ -1,0 +1,62 @@
+{
+  "name": "perm-js",
+  "version": "1.0.0",
+  "description": "Tiny Cross-Browser Permissions Wrapper - Unified API for all browser permissions",
+  "type": "module",
+  "main": "dist/perm.umd.js",
+  "module": "dist/perm.esm.js",
+  "types": "dist/perm.d.ts",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "test": "jest --experimental-vm-modules",
+    "test:watch": "jest --watch --experimental-vm-modules",
+    "test:coverage": "jest --coverage --experimental-vm-modules",
+    "lint": "eslint src/**/*.js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "keywords": [
+    "permissions",
+    "browser",
+    "api",
+    "geolocation",
+    "notifications",
+    "camera",
+    "microphone",
+    "clipboard",
+    "cross-browser",
+    "promise"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/perm-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/perm-js/issues"
+  },
+  "homepage": "https://github.com/yourusername/perm-js#readme",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "rollup": "^4.9.6"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+} 

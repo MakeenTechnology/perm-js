@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perm Library Manual Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .pass { background-color: #d4edda; color: #155724; }
+        .fail { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { margin: 5px; padding: 8px 16px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Perm Library Manual Test</h1>
+    <div id="results"></div>
+    
+    <h2>Interactive Tests</h2>
+    <button onclick="testCheckGeolocation()">Test Check Geolocation</button>
+    <button onclick="testRequestNotifications()">Test Request Notifications</button>
+    <button onclick="testBatchOperations()">Test Batch Operations</button>
+    <button onclick="testChangeEvents()">Test Change Events</button>
+    <button onclick="clearResults()">Clear Results</button>
+
+    <script type="module">
+        import { Perm, PermError } from './dist/perm.esm.js';
+        window.Perm = Perm;
+        window.PermError = PermError;
+
+        let testCount = 0;
+        let passCount = 0;
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+            
+            if (type === 'pass') passCount++;
+            testCount++;
+        }
+
+        function runTests() {
+            addResult('🚀 Starting Perm library tests...', 'info');
+            
+            // Test 1: Basic API availability
+            try {
+                if (typeof Perm === 'object' && typeof Perm.check === 'function') {
+                    addResult('✅ Test 1: Perm object and methods available', 'pass');
+                } else {
+                    addResult('❌ Test 1: Perm object or methods missing', 'fail');
+                }
+            } catch (error) {
+                addResult(`❌ Test 1: Error - ${error.message}`, 'fail');
+            }
+
+            // Test 2: getSupportedFeatures
+            try {
+                const features = Perm.getSupportedFeatures();
+                if (Array.isArray(features) && features.length > 0) {
+                    addResult(`✅ Test 2: getSupportedFeatures returns ${features.length} features: ${features.join(', ')}`, 'pass');
+                } else {
+                    addResult('❌ Test 2: getSupportedFeatures failed', 'fail');
+                }
+            } catch (error) {
+                addResult(`❌ Test 2: Error - ${error.message}`, 'fail');
+            }
+
+            // Test 3: PermError class
+            try {
+                const error = new PermError('Test error', 'TEST_CODE');
+                if (error instanceof Error && error.code === 'TEST_CODE') {
+                    addResult('✅ Test 3: PermError class works correctly', 'pass');
+                } else {
+                    addResult('❌ Test 3: PermError class failed', 'fail');
+                }
+            } catch (error) {
+                addResult(`❌ Test 3: Error - ${error.message}`, 'fail');
+            }
+
+            // Test 4: Check unknown feature (should throw)
+            try {
+                Perm.check('unknown-feature').then(() => {
+                    addResult('❌ Test 4: Should have thrown error for unknown feature', 'fail');
+                }).catch(error => {
+                    if (error instanceof PermError && error.code === 'UNKNOWN_FEATURE') {
+                        addResult('✅ Test 4: Correctly throws PermError for unknown feature', 'pass');
+                    } else {
+                        addResult(`❌ Test 4: Wrong error type: ${error.constructor.name}`, 'fail');
+                    }
+                });
+            } catch (error) {
+                addResult(`❌ Test 4: Unexpected error - ${error.message}`, 'fail');
+            }
+
+            // Test 5: onChange/offChange
+            try {
+                const handler = () => {};
+                Perm.onChange('geolocation', handler);
+                Perm.offChange('geolocation', handler);
+                addResult('✅ Test 5: onChange/offChange methods work', 'pass');
+            } catch (error) {
+                addResult(`❌ Test 5: Error - ${error.message}`, 'fail');
+            }
+
+            setTimeout(() => {
+                addResult(`🏁 Tests completed: ${passCount}/${testCount} passed`, passCount === testCount ? 'pass' : 'fail');
+            }, 1000);
+        }
+
+        // Interactive test functions
+        window.testCheckGeolocation = async function() {
+            try {
+                addResult('🔍 Checking geolocation permission...', 'info');
+                const status = await Perm.check('geolocation');
+                addResult(`✅ Geolocation status: ${status}`, 'pass');
+            } catch (error) {
+                addResult(`❌ Geolocation check failed: ${error.message}`, 'fail');
+            }
+        };
+
+        window.testRequestNotifications = async function() {
+            try {
+                addResult('🙏 Requesting notifications permission...', 'info');
+                const result = await Perm.request('notifications');
+                addResult(`✅ Notifications request result: ${result}`, 'pass');
+            } catch (error) {
+                addResult(`❌ Notifications request failed: ${error.message}`, 'fail');
+            }
+        };
+
+        window.testBatchOperations = async function() {
+            try {
+                addResult('🔍 Testing batch operations...', 'info');
+                const features = ['geolocation', 'notifications'];
+                const results = await Perm.checkAll(features);
+                addResult(`✅ Batch check results: ${JSON.stringify(results)}`, 'pass');
+            } catch (error) {
+                addResult(`❌ Batch operations failed: ${error.message}`, 'fail');
+            }
+        };
+
+        window.testChangeEvents = function() {
+            try {
+                addResult('🔔 Testing change events...', 'info');
+                const handler = (newStatus) => {
+                    addResult(`📄 Permission changed to: ${newStatus}`, 'info');
+                };
+                Perm.onChange('geolocation', handler);
+                addResult('✅ Change event listener added', 'pass');
+                
+                setTimeout(() => {
+                    Perm.offChange('geolocation', handler);
+                    addResult('✅ Change event listener removed', 'pass');
+                }, 2000);
+            } catch (error) {
+                addResult(`❌ Change events failed: ${error.message}`, 'fail');
+            }
+        };
+
+        window.clearResults = function() {
+            document.getElementById('results').innerHTML = '';
+            testCount = 0;
+            passCount = 0;
+        };
+
+        // Run basic tests on load
+        runTests();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perm - Basic Usage Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .permission-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 8px 0;
+            background: #f9f9f9;
+        }
+        .permission-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8em;
+        }
+        .status-granted { background: #d4edda; color: #155724; }
+        .status-denied { background: #f8d7da; color: #721c24; }
+        .status-prompt { background: #fff3cd; color: #856404; }
+        .status-unsupported { background: #e2e3e5; color: #6c757d; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 4px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 16px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Perm - Cross-Browser Permissions Example</h1>
+    
+    <p>This example demonstrates the basic usage of the Perm library for managing browser permissions.</p>
+    
+    <div id="permissions-container"></div>
+    
+    <div>
+        <button onclick="checkAllPermissions()">Check All Permissions</button>
+        <button onclick="requestAllPermissions()">Request All Permissions</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div class="log" id="log"></div>
+
+    <!-- Load Perm library -->
+    <script type="module">
+        // In a real application, you would import from npm or CDN
+        // import { Perm, PermError } from 'https://unpkg.com/perm-js/dist/perm.esm.min.js';
+        
+        // For this example, we'll load it from our local build
+        import { Perm, PermError } from '../dist/perm.esm.js';
+        
+        // Make Perm available globally for the example
+        window.Perm = Perm;
+        window.PermError = PermError;
+        
+        // Initialize the example when the page loads
+        document.addEventListener('DOMContentLoaded', initializeExample);
+        
+        function initializeExample() {
+            log('🚀 Perm library loaded successfully');
+            createPermissionCards();
+            setupChangeListeners();
+            checkAllPermissions();
+        }
+        
+        function createPermissionCards() {
+            const container = document.getElementById('permissions-container');
+            const features = Perm.getSupportedFeatures();
+            
+            features.forEach(feature => {
+                const card = document.createElement('div');
+                card.className = 'permission-card';
+                card.innerHTML = `
+                    <h3>${formatFeatureName(feature)}</h3>
+                    <p>Status: <span id="${feature}-status" class="permission-status">Checking...</span></p>
+                    <button onclick="checkPermission('${feature}')">Check</button>
+                    <button onclick="requestPermission('${feature}')">Request</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function setupChangeListeners() {
+            const features = Perm.getSupportedFeatures();
+            features.forEach(feature => {
+                Perm.onChange(feature, (newStatus) => {
+                    log(`📄 ${formatFeatureName(feature)} permission changed to: ${newStatus}`);
+                    updatePermissionStatus(feature, newStatus);
+                });
+            });
+        }
+        
+        async function checkPermission(feature) {
+            try {
+                log(`🔍 Checking ${formatFeatureName(feature)} permission...`);
+                const status = await Perm.check(feature);
+                log(`✅ ${formatFeatureName(feature)} status: ${status}`);
+                updatePermissionStatus(feature, status);
+            } catch (error) {
+                if (error instanceof PermError) {
+                    log(`❌ Error checking ${formatFeatureName(feature)}: ${error.message} (${error.code})`);
+                } else {
+                    log(`❌ Unexpected error: ${error.message}`);
+                }
+            }
+        }
+        
+        async function requestPermission(feature) {
+            try {
+                log(`🙏 Requesting ${formatFeatureName(feature)} permission...`);
+                const result = await Perm.request(feature);
+                log(`✅ ${formatFeatureName(feature)} request result: ${result}`);
+                updatePermissionStatus(feature, result);
+            } catch (error) {
+                if (error instanceof PermError) {
+                    log(`❌ Error requesting ${formatFeatureName(feature)}: ${error.message} (${error.code})`);
+                } else {
+                    log(`❌ Unexpected error: ${error.message}`);
+                }
+            }
+        }
+        
+        async function checkAllPermissions() {
+            try {
+                log('🔍 Checking all permissions...');
+                const features = Perm.getSupportedFeatures();
+                const results = await Perm.checkAll(features);
+                
+                Object.entries(results).forEach(([feature, status]) => {
+                    updatePermissionStatus(feature, status);
+                });
+                
+                log(`✅ All permissions checked: ${JSON.stringify(results, null, 2)}`);
+            } catch (error) {
+                log(`❌ Error checking all permissions: ${error.message}`);
+            }
+        }
+        
+        async function requestAllPermissions() {
+            try {
+                log('🙏 Requesting all permissions...');
+                const features = Perm.getSupportedFeatures();
+                const results = await Perm.requestAll(features);
+                
+                Object.entries(results).forEach(([feature, status]) => {
+                    updatePermissionStatus(feature, status);
+                });
+                
+                log(`✅ All permissions requested: ${JSON.stringify(results, null, 2)}`);
+            } catch (error) {
+                log(`❌ Error requesting all permissions: ${error.message}`);
+            }
+        }
+        
+        function updatePermissionStatus(feature, status) {
+            const statusElement = document.getElementById(`${feature}-status`);
+            if (statusElement) {
+                statusElement.textContent = status;
+                statusElement.className = `permission-status status-${status}`;
+            }
+        }
+        
+        function formatFeatureName(feature) {
+            return feature
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+        
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        // Make functions available globally for onclick handlers
+        window.checkPermission = checkPermission;
+        window.requestPermission = requestPermission;
+        window.checkAllPermissions = checkAllPermissions;
+        window.requestAllPermissions = requestAllPermissions;
+        window.clearLog = clearLog;
+    </script>
+</body>
+</html> 
