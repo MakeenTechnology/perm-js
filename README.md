@@ -12,6 +12,13 @@
 
 **Perm** is a zero-dependency JavaScript library that unifies all modern browser permission APIs (geolocation, notifications, camera/mic, clipboard, persistent storage, etc.) under one simple, promise-based interface. It provides automatic fallbacks for older browsers and real-time permission change events.
 
+
+## Support the Project
+
+If you’d like to support my work, you can donate via PayPal:
+
+[❤️ Donate via PayPal](https://paypal.me/AlharthyDev)
+
 ## ✨ Features
 
 - **🎯 Unified API** - One consistent interface for all permission types
