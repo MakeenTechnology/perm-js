@@ -258,26 +258,6 @@ Perm is available in multiple formats:
 - **Minified ES Module**: `dist/perm.esm.min.js`
 - **Minified UMD**: `dist/perm.umd.min.js`
 
-### Using via CDN (After NPM Publishing)
-
-```html
-<!-- ES Module (Will be available after NPM publishing) -->
-<script type="module">
-  import { Perm } from 'https://unpkg.com/perm-js/dist/perm.esm.min.js';
-  
-  const status = await Perm.check('geolocation');
-  console.log(status);
-</script>
-
-<!-- UMD (Will be available after NPM publishing) -->
-<script src="https://unpkg.com/perm-js/dist/perm.umd.min.js"></script>
-<script>
-  Perm.check('geolocation').then(status => {
-    console.log(status);
-  });
-</script>
-```
-
 ### Current Usage (Before NPM Publishing)
 
 ```html
@@ -289,17 +269,6 @@ Perm is available in multiple formats:
   console.log(status);
 </script>
 ```
-
-## 📦 Publishing to NPM
-
-To publish this package to NPM:
-
-1. **Update package.json** with your npm username in the name field
-2. **Create NPM account** at [npmjs.com](https://www.npmjs.com/)
-3. **Login to NPM**: `npm login`
-4. **Publish**: `npm publish`
-
-After publishing, update the README badges and installation instructions.
 
 ## 🤝 Contributing
 
@@ -319,10 +288,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Inspired by the need for a unified permissions API
 - Built with modern web standards in mind
-- Thanks to all contributors and users
 
 ---
 
 <p align="center">
-  Made with ❤️ by the Perm team
+  Made with ❤️ by the Makeen
 </p> 
