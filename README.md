@@ -55,7 +55,7 @@ Download the latest release from GitHub and include in your project:
 
 #### Option 3: Clone Repository
 ```bash
-git clone https://github.com/yourusername/perm-js.git
+git clone https://github.com/makeentechnology/perm-js.git
 cd perm-js
 npm install
 npm run build
